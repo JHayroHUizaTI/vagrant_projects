@@ -1,0 +1,125 @@
+Vagrant.configure("2") do |config|
+    config.vm.define "ansible" do |ansible|
+        ansible.vm.hostname = 'master'
+        ansible.vm.box = "centos/7"
+        ansible.vm.network "public_network", ip: "192.168.1.211", bridge: "wlo1: Wi-Fi (AirPort)"
+        ansible.vm.disk :disk, size: "15GB", primary: true
+        ansible.vm.provision "shell", inline: <<-SHELL
+        sudo su
+        echo "echo I am provisioning..."        
+        sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
+        systemctl restart sshd.service
+        sudo yum update -y
+        sudo yum upgrade -y
+        sudo yum install vim -y
+        sudo yum install git -y
+        sudo yum install epel-release -y
+        sudo yum install ansible -y
+        sudo hostnamectl set-hostname ansible.pitagoras.com
+        sudo echo -e "192.168.1.211\tansible.pitagoras.com\tansible" >> /etc/hosts
+        sudo echo -e "192.168.1.212\tmysql.pitagoras.com\tmysql" >> /etc/hosts
+        sudo echo -e "192.168.1.213\tnginx.pitagoras.com\tnginx" >> /etc/hosts
+        ssh-keygen -t rsa -f /home/vagrant/.ssh/id_rsa -q -P ""
+        exec bash
+
+        SHELL
+
+        ansible.vm.provider "virtualbox" do |v|
+            v.memory = 1030
+            v.cpus = 1
+            v.name = "master"
+        end
+    end
+
+    config.vm.define "mysql" do |mysql|
+        mysql.vm.hostname = 'mysql'
+        mysql.vm.box = "centos/7"
+        mysql.vm.network "public_network", ip: "192.168.1.212", bridge: "wlo1: Wi-Fi (AirPort)"
+        mysql.vm.disk :disk, size: "15GB", primary: true
+        mysql.vm.provision "shell", inline: <<-SHELL
+        sudo su
+        echo "echo I am provisioning..."        
+        sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
+        systemctl restart sshd.service
+        sudo yum update -y
+        sudo yum upgrade -y
+        sudo yum install vim -y
+        sudo yum install git -y
+        sudo yum install epel-release
+        sudo echo -e "vagrant ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+        sudo hostnamectl set-hostname mysql.pitagoras.com
+        exec bash
+        sudo echo -e "192.168.1.211\tansible.pitagoras.com\tansible" >> /etc/hosts
+        sudo echo -e "192.168.1.212\tmysql.pitagoras.com\tmysql" >> /etc/hosts
+        sudo echo -e "192.168.1.213\tnginx.pitagoras.com\tnginx" >> /etc/hosts
+        SHELL
+
+        mysql.vm.provider "virtualbox" do |v|
+            v.memory = 1030
+            v.cpus = 1
+            v.name = "nginx"
+        end
+    end
+
+    config.vm.define "smb" do |smb|
+        smb.vm.hostname = 'smb'
+        smb.vm.box = "centos/7"
+        smb.vm.network "public_network", ip: "192.168.1.214", bridge: "wlo1: Wi-Fi (AirPort)"
+        smb.vm.disk :disk, size: "15GB", primary: true
+        smb.vm.provision "shell", inline: <<-SHELL
+        sudo su
+        echo "echo I am provisioning..."        
+        sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
+        systemctl restart sshd.service
+        sudo yum update -y
+        sudo yum upgrade -y
+        sudo yum install vim -y
+        sudo yum install epel-release
+        sudo echo -e "vagrant ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+        sudo hostnamectl set-hostname smb.pitagoras.com
+        sudo echo -e "192.168.1.211\tansible.pitagoras.com\tansible" >> /etc/hosts
+        sudo echo -e "192.168.1.212\tmysql.pitagoras.com\tmysql" >> /etc/hosts
+        sudo echo -e "192.168.1.213\tnginx.pitagoras.com\tnginx" >> /etc/hosts
+        sudo echo -e "192.168.1.214\tsmb.pitagoras.com\tsmb" >> /etc/hosts
+        SHELL
+
+        smb.vm.provider "virtualbox" do |v|
+            v.memory = 1030
+            v.cpus = 1
+            v.name = "smb"
+        end
+    end
+
+    config.vm.define "syslog" do |syslog|
+        syslog.vm.hostname = 'syslog'
+        syslog.vm.box = "centos/7"
+        syslog.vm.network "public_network", ip: "192.168.1.215", bridge: "wlo1: Wi-Fi (AirPort)"
+        syslog.vm.disk :disk, size: "15GB", primary: true
+        syslog.vm.provision "shell", inline: <<-SHELL
+        sudo su
+        echo "echo I am provisioning..."        
+        sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
+        systemctl restart sshd.service
+        sudo yum update -y
+        sudo yum upgrade -y
+        sudo yum install vim -y
+        sudo yum install epel-release
+        sudo echo -e "vagrant ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+        sudo hostnamectl set-hostname smb.pitagoras.com
+        sudo echo -e "192.168.1.211\tansible.pitagoras.com\tansible" >> /etc/hosts
+        sudo echo -e "192.168.1.212\tmysql.pitagoras.com\tmysql" >> /etc/hosts
+        sudo echo -e "192.168.1.213\tnginx.pitagoras.com\tnginx" >> /etc/hosts
+        sudo echo -e "192.168.1.214\tsmb.pitagoras.com\tsmb" >> /etc/hosts
+        sudo echo -e "192.168.1.215\tsyslog.pitagoras.com\tsyslog" >> /etc/hosts
+        SHELL
+
+        syslog.vm.provider "virtualbox" do |v|
+            v.memory = 1030
+            v.cpus = 1
+            v.name = "syslog"
+        end
+    end
+
+
+end
+
